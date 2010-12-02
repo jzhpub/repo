@@ -122,6 +122,14 @@ class _Repo(object):
         RunPager(config)
 
     try:
+      if name == 'upload':
+	  print "Rebase before upload!\nPlease resolve conflicts if necessary."
+	  sync_cmd = self.commands['sync']
+	  sync_cmd.repodir = self.repodir
+	  sync_cmd.manifest = XmlManifest(sync_cmd.repodir)
+	  sync_opts, sync_args = sync_cmd.OptionParser.parse_args(cargs)
+	  sync_cmd.Execute(sync_opts, sync_args)
+	  print "sync done!"
       cmd.Execute(copts, cargs)
     except ManifestInvalidRevisionError, e:
       print >>sys.stderr, 'error: %s' % str(e)
