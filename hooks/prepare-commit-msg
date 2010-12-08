@@ -1,0 +1,23 @@
+#!/bin/sh
+
+#do not use 'git commit -m'
+for i in $* 
+do
+	if [ "$i" = "message" ];then
+		echo "Please do not use '-m' when commit!"
+		exit 1
+	fi	
+done	
+
+#if user just use 'git commit'
+if [ "$2" = "" ];then
+	sed -i "1iProject:${PROJECT_NAME}" $1
+	sed -i "2iBugID:" $1
+	sed -i "3iDescription:" $1
+	sed -i "4i#Please use below template to fill the message" $1
+	sed -i "5i#Project: xxxxx, [mandatory]" $1
+	sed -i "6i#BugID: PR or CR ID in ClearQuest, or an alias name for new feature which does not have a corresponded entry in ClearQuest[optional]" $1
+	sed -i "7i#Description: detail information, [mandatory]" $1
+fi
+
+

@@ -97,5 +97,87 @@ _gen_ChangeId() {
 	git hash-object -t commit --stdin
 }
 
+checkmsg () {
+       clean_message=$(sed -e '
+                /^diff --git a\/.*/{
+                        s///
+                        q
+                }
+                /^Signed-off-by:/d
+                /^#/d
+        ' "$MSG" | git stripspace)
+
+        if test -z "$clean_message"
+        then
+                echo "Please follow the format to commit your message!"
+		exit 1
+	fi
+
+	perl -e '
+		$MSG = shift;
+		$project = "project";
+		$bugid = "bugid";
+		$desc = "description";
+		%items = (
+			$project => 0,
+			$bugid => 0,
+			$desc => 0,
+		);
+
+		undef $/;
+                open(I, $MSG); $_ = <I>; close I;
+                s|^diff --git a/.*||ms;
+                s|^#.*$||mg;
+                exit unless $_;
+
+                @message = split /\n/;
+		
+		for($line = @message - 1; $line >= 0; $line--) {
+                        $_ = $message[$line];
+
+			($key, $value) = split /:/;
+			$key = lc($key);
+			chomp $key;
+
+			if ($key =~ /$project|$desc/){
+				if ( !defined $value || $value eq "" || $value =~ /^\s+$/){
+                                        print "$key can not be empty!\n";
+                                        exit 1;
+                                }
+				$items{$key} = 1;
+			}
+			elsif ($key =~ /$bugid/){
+				if ( !defined $value || $value eq "" || $value =~ /^\s+$/){
+                                        $value = "N/A";
+					$message[$line] = join(":", "BugID", $value);
+                                }
+				$items{$key} = 1;
+			}
+		}
+
+		foreach $key (keys %items){
+			if ($items{$key} == 0){
+				if ($key eq $project || $key eq $desc){
+					print "You forget the part of $key.\n";
+					print qq(Suggestion : Please do not use "git commit -m" to commit your changes.\n);
+					exit 1;
+				}
+				if ($key eq $bugid){
+					push @message, "BugID:N/A";
+				}
+			}
+		}
+
+		$_ = join("\n", @message);
+                open(O, ">$MSG"); print O; close O;
+		
+		' "$MSG"
+
+	if [ $? != 0 ];then
+		exit 1
+	fi
+}
+
+checkmsg
 
 add_ChangeId
