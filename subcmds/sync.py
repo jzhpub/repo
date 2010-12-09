@@ -377,6 +377,7 @@ def _PostRepoFetch(rp, no_repo_verify=False, verbose=False):
   if rp.HasChanges:
     print >>sys.stderr, 'info: A new version of repo is available'
     print >>sys.stderr, ''
+    rp.Sync_NetworkHalf()
     if no_repo_verify or _VerifyTag(rp):
       syncbuf = SyncBuffer(rp.config)
       rp.Sync_LocalHalf(syncbuf)
