@@ -1,14 +1,5 @@
 #!/bin/sh
 
-#do not use 'git commit -m'
-for i in $* 
-do
-	if [ "$i" = "message" ];then
-		echo "Please do not use '-m' when commit!"
-		exit 1
-	fi	
-done	
-
 #if user just use 'git commit'
 if [ "$2" = "" ];then
 	sed -i "1iProject:${PROJECT_NAME}" $1
