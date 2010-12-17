@@ -1,9 +1,36 @@
 #!/bin/sh
 
+branch=`perl -e '
+	$mybranch = "";
+	@branches = qx(git branch);
+	foreach $branch (@branches){
+	    chomp $branch;
+	    if ($branch =~ /^\*\s+/){
+		$branch =~ s/^\*\s+//;
+		$mybranch = $branch;
+		last;
+            }
+        }
+	print $mybranch;'`
+
+remote=`git config --get branch.$branch.merge`
+remote="${remote#*refs/heads/}"
+
+if [ "${remote#*wt2/}" != "$remote" ];then
+	project="TVA200"
+elif [ "${remote#*sht/}" != "$remote" ];then
+	project="TVA200SHT"
+elif [ "${remote#*prt}" != "$remote" ];then
+	project="V2-PRT"
+else
+	project=""
+
+fi
+
 #if user just use 'git commit'
 if [ "$2" = "" ];then
-	sed -i "1iProject:${PROJECT_NAME}" $1
-	sed -i "2iBugID:" $1
+	sed -i "1iProject: ${project}" $1
+	sed -i "2iBugID: N/A" $1
 	sed -i "3iDescription:" $1
 	sed -i "4i#Please use below template to fill the message" $1
 	sed -i "5i#Project: xxxxx, [mandatory]" $1
