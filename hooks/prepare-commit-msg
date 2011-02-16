@@ -30,7 +30,7 @@ fi
 #if user just use 'git commit'
 if [ "$2" = "" ];then
 	sed -i "1iProject: ${project}" $1
-	sed -i "2iBugID: N/A" $1
+	sed -i "2iBugID:" $1
 	sed -i "3iDescription:" $1
 	sed -i "4i#Please use below template to fill the message" $1
 	sed -i "5i#Project: xxxxx, [mandatory]" $1
