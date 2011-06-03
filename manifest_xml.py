@@ -40,7 +40,19 @@ class _XmlRemote(object):
     self.reviewUrl = review
 
   def ToRemoteSpec(self, projectName):
-    url = self.fetchUrl
+    # add user at the begin of url
+    globCfg = GitConfig.ForUser()
+    userEmail = globCfg.GetString('user.email')
+
+    if userEmail is not None:
+        username = userEmail.split("@")[0]
+        if '@' in self.fetchUrl :
+          serverUrl = self.fetchUrl.split("@")[1]
+        else:
+          serverUrl = self.fetchUrl
+
+    url = username + '@' + serverUrl
+#    url = self.fetchUrl
     while url.endswith('/'):
       url = url[:-1]
     url += '/%s.git' % projectName
